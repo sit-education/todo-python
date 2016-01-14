@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash, g, jsonify
+from flask import Flask, render_template, redirect, url_for, request, session, flash, g, jsonify, Request
 from flask import make_response
 from functools import wraps
 from flask.ext.mail import Mail, Message
@@ -305,13 +305,21 @@ def apilogin_required(f):
         nom = ((conn.execute('select count(*) from apitokens')).fetchall())[0][0]
         tokens = cur.fetchall()
         for x in range(0,nom):
-            if str(request.headers.get('tokenKey')) == tokens[x][0]:
-                if int(request.headers.get('tokenExpired')) > int(time.time()):
+            if str(request.headers.get('Token-Key')) == tokens[x][0]:
+                if int(tokens[x][2]) > int(time.time()):
                     return f(*args, **kwargs)
-                massiv= ['Token has expired']
-                return jsonify({'status':0, 'errors': massiv }), 410
-        massiv= ['Invalid token.Please, sign in']
-        return jsonify({'status':0, 'errors': massiv }), 410
+                massiv=collections.OrderedDict()
+                massiv['error_key']="token_expired"
+                massiv['error_message']='Token has expired.'
+                errors=[]
+                errors.append(massiv)
+                return jsonify({'status':0, 'errors': errors }), 410
+        massiv=collections.OrderedDict()
+        massiv['error_key']="invalid_token"
+        massiv['error_message']='Invalid token.'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 401
     return wrap
 
 def apilogin_already(f):
@@ -322,21 +330,26 @@ def apilogin_already(f):
         nom = ((conn.execute('select count(*) from apitokens')).fetchall())[0][0]
         tokens = cur.fetchall()
         for x in range(0,nom):
-            if str(request.headers.get('tokenKey')) == tokens[x][0]:
-                if int(request.headers.get('tokenExpired')) > int(time.time()):
-                    massiv= ['You\'ve already logged in. Please, at first log out']
-                    return jsonify({'status':0, 'errors': massiv }), 400
-                massiv= ['Token has expired','You\'ve already logged in. Please, at first log out' ]
-                return jsonify({'status':0, 'errors': massiv }), 410
-        return f(*args, **kwargs)
+            if str(request.headers.get('Token-Key')) == tokens[x][0]:
+                return f(*args, **kwargs)
+        massiv=collections.OrderedDict()
+        massiv['error_key']="invalid_token"
+        massiv['error_message']='Invalid token.'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 401
     return wrap
 
 @app.route('/api/v1/restorePassword', methods=['POST'])
 def apirecov():
     oldmail=request.json["email"]
     if emcheck(oldmail) == None:
-        massiv= ['Invalid format of email']
-        return jsonify({'status':0, 'errors': massiv }), 400
+        massiv=collections.OrderedDict()
+        massiv['error_key']="invalid_email_format"
+        massiv['error_message']='Invalid format of email'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
     oldusers = sqlite3.connect("users.db")
     cnt = ((oldusers.execute('select count(*) from users')).fetchall())[0][0]
     olduser = (oldusers.execute('select * from users')).fetchall()
@@ -344,8 +357,12 @@ def apirecov():
     for i in range(0,cnt):
         emails.append(str(olduser[i][3]))
     if emails.count(str(oldmail))==0:
-        massiv= ['This email not registered']
-        return jsonify({'status':0, 'errors': massiv }), 400
+        massiv=collections.OrderedDict()
+        massiv['error_key']="email_not_registered"
+        massiv['error_message']='This email adress not registered'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
     Code = gentoken()
     emailnew=['%s'%oldmail]
     msg = Message('Recovery password', sender = ADMINS[0], recipients = emailnew)
@@ -359,35 +376,49 @@ def apirecov():
     oldusers.commit()
     oldusers.execute('Insert into recovery (Code,email) values (\'%s\',\'%s\')' %(Code,oldmail))
     oldusers.commit()
-    flash('Check your email for recover your password')
-    massiv=[]
-    return jsonify({'status':1, 'data': massiv })
+    return jsonify({'status':1, 'data': {} })
 
 @app.route('/api/v1/signup', methods=['POST'])
 def apisignup():
-    newemail=request.json["Email"]
-    newusername=request.json["Login"]
-    newfirstname=request.json["Firstname"]
-    newlastname=request.json["Lastname"]
-    newuserpassword=request.json["Password"]
+    newemail=request.json["email"]
+    newusername=request.json["login"]
+    newfirstname=request.json["firstname"]
+    newlastname=request.json["lastname"]
+    newuserpassword=request.json["password"]
     confnewpass=request.json["confPass"]
     if emcheck(newemail) == None:
-        massiv= ['Invalid format of email']
-        return jsonify({'status':0, 'errors': massiv }), 400
+        massiv=collections.OrderedDict()
+        massiv['error_key']="invalid_email_format"
+        massiv['error_message']='Invalid format of email'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
     if newuserpassword!=confnewpass:
-        massiv= ['Passwords are not equal. Please try again']
-        return jsonify({'status':0, 'errors': massiv }), 400
+        massiv=collections.OrderedDict()
+        massiv['error_key']="passwords_not_equal"
+        massiv['error_message']='Passwords are not equal. Please try again'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
     dataBase = sqlite3.connect("users.db")
     cnt = ((dataBase.execute('select count(*) from users')).fetchall())[0][0]
     olduser = (dataBase.execute('select * from users')).fetchall()
     for i in range(0,cnt):
         if (newemail.lower()==olduser[i][3].lower()):
-            massiv= ['This email adress already exists']
-            return jsonify({'status':0, 'errors': massiv }), 400
+            massiv=collections.OrderedDict()
+            massiv['error_key']="email_already_exists"
+            massiv['error_message']='This email adress already exists'
+            errors=[]
+            errors.append(massiv)
+            return jsonify({'status':0, 'errors': errors }), 400
     for i in range(0,cnt):
         if (newusername.lower()==olduser[i][1].lower()):
-            massiv= ['This login already exists']
-            return jsonify({'status':0, 'errors': massiv }), 400
+            massiv=collections.OrderedDict()
+            massiv['error_key']="login_already_exists"
+            massiv['error_message']='This login already exists'
+            errors=[]
+            errors.append(massiv)
+            return jsonify({'status':0, 'errors': errors }), 400
     Code = gentoken()
     emailnew=['%s'%newemail]
     msg = Message('Confirm email address', sender = ADMINS[0], recipients = emailnew)
@@ -407,6 +438,7 @@ def apisignup():
     dataBase.execute('Insert into apitokens (token,id) values (\'%s\',\'%s\')' %(token,IDD[0][0]))
     dataBase.commit()
     tokenout=collections.OrderedDict()
+    tokenout['user_id']=IDD[0][0]
     tokenout['emailVerified']=IDD[0][6]
     tokenout['tokenKey']=token
     tokenout['tokenExpired']=token_expired
@@ -415,7 +447,6 @@ def apisignup():
     return jsonify({'status':1, 'data': tokenout })
 
 @app.route('/api/v1/login', methods=['POST'])
-@apilogin_already
 def apilogin():
     conn=sqlite3.connect("users.db")
     kolvo = ((conn.execute('select count(*) from users')).fetchall())[0][0]
@@ -425,55 +456,70 @@ def apilogin():
     for i in range(0,kolvo):
         if (loginmd.lower() == usersdb[i][1].lower()) and passmd.lower() == usersdb[i][2].lower():
             if usersdb[i][6] == 0:
-                massiv= ['You did not confirm an email address.']
-                return jsonify({'status':0, 'errors': massiv }), 400
+                massiv=collections.OrderedDict()
+                massiv['error_key']="unconfirmed_email"
+                massiv['error_message']="You did not confirm an email address."
+                errors=[]
+                errors.append(massiv)
+                return jsonify({'status':0, 'errors': errors }), 400
             token=gentoken()
             token_expired= str(int(time.time()+86400))
             conn.execute('Delete from apitokens where id=\'%s\' '%(usersdb[i][0]))
             conn.commit()
-            conn.execute('Insert into apitokens (token,id) values (\'%s\',\'%s\')' %(token,usersdb[i][0]))
+            conn.execute('Insert into apitokens (token,id,expiration) values (\'%s\',\'%s\',\'%s\')' %(token,usersdb[i][0],token_expired))
             conn.commit()
             tokenout=collections.OrderedDict()
+            tokenout['user_id']=usersdb[i][0]
             tokenout['emailVerified']=usersdb[i][6]
             tokenout['tokenKey']=token
             tokenout['tokenExpired']=token_expired
-            massiv=[]
-            massiv.append(tokenout)
             return jsonify({'status':1, 'data': tokenout })
-    massiv= ['Invalid login or password']
-    return jsonify({'status':0, 'errors': massiv }), 400
+    massiv=collections.OrderedDict()
+    massiv['error_key']="invalid_username_or_password"
+    massiv['error_message']="Invalid username or password. Please try again."
+    errors=[]
+    errors.append(massiv)
+    return jsonify({'status':0, 'errors': errors }), 400
 
 
 @app.route('/api/v1/logout', methods=['POST'])
+@apilogin_already
 def apilogout():
     conn=sqlite3.connect("users.db")
-    conn.execute('Delete from apitokens where token=\'%s\' '%(request.headers.get('tokenKey')))
+    conn.execute('Delete from apitokens where token=\'%s\' '%(request.headers.get('Token-Key')))
     conn.commit()
-    massiv=[]
-    return jsonify({'status':1, 'data': massiv })
+    return jsonify({'status':1, 'data':{}})
 
-@app.route('/api/v1/add', methods=['POST'])
+@app.route('/api/v1/item', methods=['POST'])
 @apilogin_required
 def apiadd():
     title= request.json['title']
     if title == "":
-        massage= ['Title should be.']
-        return jsonify({'status':0,'errors': massage}), 400
+        massiv=collections.OrderedDict()
+        massiv['error_key']="title_should_be"
+        massiv['error_message']='Title should be.'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
     descr= request.json['description']
     if descr == "":
-        massage= ['Description should be.']
-        return jsonify({'status':0,'errors': massage}), 400
-    cur = (((sqlite3.connect("users.db")).execute('select id from apitokens where token=\'%s\' '%(request.headers.get('tokenKey')))).fetchall())[0][0]
+        massiv=collections.OrderedDict()
+        massiv['error_key']="description_should_be"
+        massiv['error_message']='Description should be.'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
+    cur = (((sqlite3.connect("users.db")).execute('select id from apitokens where token=\'%s\' '%(request.headers.get('Token-Key')))).fetchall())[0][0]
     todo.execute('Insert into todo%s (title,description) values (\'%s\',\'%s\')' %((cur),title,descr))
     todo.commit()
     massiv=[]
-    return jsonify({'status':1, 'data': massiv })
+    return jsonify({'status':1, 'data': {}})
 
 
 @app.route('/api/v1/items', methods=['GET'])
 @apilogin_required
 def apiitems():
-    cur = (((sqlite3.connect("users.db")).execute('select id from apitokens where token=\'%s\' '%(request.headers.get('tokenKey')))).fetchall())[0][0]
+    cur = (((sqlite3.connect("users.db")).execute('select id from apitokens where token=\'%s\' '%(request.headers.get('Token-Key')))).fetchall())[0][0]
     massiv = []
     counts= ((todo.execute('select count(*) from todo%s' %(cur))).fetchall())[0][0]
     itemss= (todo.execute('select * from todo%s' %(cur))).fetchall()
@@ -483,50 +529,64 @@ def apiitems():
         task['title']=itemss[x][1]
         task['description']=itemss[x][2]
         massiv.append(task)
-    return jsonify({'status':1, 'data':{'todoData': massiv }})
+    return jsonify({'status':1, 'data':{'todoData': task }})
 
 @app.route('/api/v1/item/<numb>', methods=['Delete'])
 @apilogin_required
 def apiitemdelete(numb):
-    cur = (((sqlite3.connect("users.db")).execute('select id from apitokens where token=\'%s\' '%(request.headers.get('tokenKey')))).fetchall())[0][0]
+    cur = (((sqlite3.connect("users.db")).execute('select id from apitokens where token=\'%s\' '%(request.headers.get('Token-Key')))).fetchall())[0][0]
     counts= ((todo.execute('select count(*) from todo%s' %(cur))).fetchall())[0][0]
     idss=[]
     tasks = (todo.execute('select * from todo%s' %(cur))).fetchall()
     for k in range(0,counts):
         idss.append(int(tasks[k][0]))
     if idss.count(int(numb))==0:
-        massage= 'This task does not exist.'
-        return jsonify({'status':0,'errors': massage}), 404
+        massiv=collections.OrderedDict()
+        massiv['error_key']="task_not_exist"
+        massiv['error_message']='This task does not exist.'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
     todo.execute('Delete from todo%s where id=%s' %((cur),numb))
     todo.commit()
-    massiv=[]
-    return jsonify({'status':1, 'data': massiv })
+    return jsonify({'status':1, 'data': {}})
 
 
 @app.route('/api/v1/item/<numb>', methods=['PUT'])
 def apiitem(numb):
-    cur = (((sqlite3.connect("users.db")).execute('select id from apitokens where token=\'%s\' '%(request.headers.get('tokenKey')))).fetchall())[0][0]
+    cur = (((sqlite3.connect("users.db")).execute('select id from apitokens where token=\'%s\' '%(request.headers.get('Token-Key')))).fetchall())[0][0]
     counts= ((todo.execute('select count(*) from todo%s' %(cur))).fetchall())[0][0]
     idss=[]
     tasks = (todo.execute('select * from todo%s' %(cur))).fetchall()
     for k in range(0,counts):
         idss.append(int(tasks[k][0]))
     if idss.count(int(numb))==0:
-        massage= ['This task does not exist.']
-        return jsonify({'status':0,'errors': massage}), 404
+        massiv=collections.OrderedDict()
+        massiv['error_key']="task_not_exist"
+        massiv['error_message']='This task does not exist.'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
     title= request.json['title']
     if title == "":
-        massage= ['Title should be.']
-        return jsonify({'status':0,'errors': massage}), 400
+        massiv=collections.OrderedDict()
+        massiv['error_key']="title_should_be"
+        massiv['error_message']='Title should be.'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
     descr= request.json['description']
     if descr == "":
-        massage= ['Description should be.']
-        return jsonify({'status':0,'errors': massage}), 400
+        massiv=collections.OrderedDict()
+        massiv['error_key']="description_should_be"
+        massiv['error_message']='Description should be.'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
     todo.execute('Update todo%s set title=\'%s\' where id=%s' %((cur),title,numb))
     todo.execute('Update todo%s set description=\'%s\' where id=%s' %((cur),descr,numb))
     todo.commit()
-    massiv=[]
-    return jsonify({'status':1, 'data': massiv })
+    return jsonify({'status':1, 'data': {} })
 
 
 @app.errorhandler(404)
