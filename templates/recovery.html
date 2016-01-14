@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row center topsz" style="font-family: 'Droid Serif', serif;">
+    	<h4 style="margin-top:20px;">Please, enter your account email:</h4>
+    	<form class="center" action="" method="post">
+          <input required class="form-control" type="text" placeholder="Email" name="recemail" value="{{request.form.recemail }}" style="border-radius:0px; margin-top:15px; width:350px;height:50px;">
+          <br>
+          {% for message in get_flashed_messages() %} 
+            {{ message }} 
+          {% endfor %}
+        	<br>
+        	<input class="form-control" type="submit" value="Recovery" style="border-radius:0px;margin-top:15px;width:350px; background-color:#008f73; color:#ffffff; height:50px;">
+    	</form>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row center topsz" style="font-family: 'Droid Serif', serif;">
+	<h1 style="font-size:72px; color:#941b1b;">
+		Welcome
+		<br>
+		to TODO list
+	</h1>
+      <br>
+</div>
+<div class="col-md-12 center topsz" style="font-family: 'Droid Serif', serif;">
+    <div class="row center">
+        <div class="col-md-4 col-md-offset-4 center">
+            <form class="center" action="" method="post">
+                <input required class="form-control" type="text" placeholder="Username" name="username" value="{{request.form.username }}" style="border-radius:0px; margin-top:15px; width:100%;height:50px;">
+                <br>
+                <input required class="form-control" type="password" placeholder="Password" name="password" value="{{request.form.password }}"style="border-radius:0px;margin-top:15px;width:100%;height:50px;">
+                <br>
+                {% if error %}
+                    <p class="error center"><strong></strong> {{ error }}</p>
+                {% endif %}
+                <input class="form-control" type="submit" value="Signin" style="border-radius:0px;margin-top:15px;width:100%; background-color:#008f73; color:#ffffff; height:50px;">
+                <br>
+            </form>
+
+            <div class="row">
+
+                <form class="center" action="" method="get">    
+                    <div class="col-md-6">    
+                        <input formaction="/signup" class="form-control" type="submit" name="Sign Up" value="Sign Up" style="border-radius:0px;margin-top:15px;width:100%; background-color:#008f73; color:#ffffff; height:35px;">
+                    </div>
+                </form>
+                    <form class="center" action="" method="get">
+                        <div class="col-md-6">    
+                            <input formaction="/recovery" class="form-control" type="submit" name="Forgot password?" value="Forgot password?" style="border-radius:0px;margin-top:15px;width:100%; background-color:#008f73; color:#ffffff; height:35px;">
+                        </div>
+                    </form>
+            </div>
+            
+
+    </div>   
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row center topsz" style="font-family: 'Droid Serif', serif;">
+    	<h4 style="margin-top:20px;"></h4>
+    	
+          {% for message in get_flashed_messages() %} 
+            {{ message }} 
+          {% endfor %}
+
+      </h4>
+        	<br>
+      <form class="center" action="" method="get">
+        	<input formaction="{{url_for('login')}}" class="form-control" type="submit" value="Come back" style="border-radius:0px;margin-top:15px;width:350px; background-color:#008f73; color:#ffffff; height:50px;">
+    	</form>
+</div>
+
+
+{% endblock %}

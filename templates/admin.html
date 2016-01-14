@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row center topsz" style="font-family: 'Droid Serif', serif;">
+    <form class="center" action="" method="post">
+        <input class="form-control" type="password" placeholder="Password" name="adpassword" value="{{request.form.admpswrd }}"style="border-radius:0px;margin-top:15px;width:350px;height:50px;">
+        <br>
+        <input class="form-control" type="submit" value="Open" style="border-radius:0px;margin-top:15px;width:350px; background-color:#008f73; color:#ffffff; height:50px;">
+    </form>
+</div>
+
+
+{% endblock %}

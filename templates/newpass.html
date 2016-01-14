@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row center topsz" style="font-family: 'Droid Serif', serif;">
+    	<h4 style="margin-top:20px;">{{nick}}, enter new password:</h4>
+    	<form class="center" action="" method="POST">
+          <input required class="form-control" type="password" placeholder="New password" name="newpass" value="{{request.form.newpass }}" style="border-radius:0px; margin-top:15px; width:350px;height:50px;">
+          <br>
+          <input required class="form-control" type="password" placeholder="Confirm password" name="confpass" value="{{request.form.confpass }}" style="border-radius:0px; margin-top:15px; width:350px;height:50px;">
+          <br>
+          {% for message in get_flashed_messages() %} 
+            {{ message }} 
+          {% endfor %}
+        	<br>
+        	<input class="form-control" type="submit" value="Save new password" style="border-radius:0px;margin-top:15px;width:350px; background-color:#008f73; color:#ffffff; height:50px;">
+    	</form>
+</div>
+
+
+{% endblock %}

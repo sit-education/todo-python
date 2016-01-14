@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row center topsz" style="font-family: 'Droid Serif', serif;">
+    	<h4 style="margin-top:20px;">Please, enter your account details:</h4>
+    	<form class="center" action="" method="post">
+          <input required class="form-control" type="text" placeholder="Email" name="newemail" value="{{request.form.email }}" style="border-radius:0px; margin-top:15px; width:350px;height:50px;">
+          <br>
+        	<input required class="form-control" type="text" placeholder="Login" name="newusername" value="{{request.form.newusername }}" style="border-radius:0px; margin-top:15px; width:350px;height:50px;">
+        	<br>
+          <input required class="form-control" type="text" placeholder="First name" name="newfirstname" value="{{request.form.newfirstname }}" style="border-radius:0px; margin-top:15px; width:350px;height:50px;">
+          <br>
+          <input required class="form-control" type="text" placeholder="Last name" name="newlastname" value="{{request.form.newlastname }}" style="border-radius:0px; margin-top:15px; width:350px;height:50px;">
+          <br>
+        	<input required class="form-control" type="password" placeholder="Password" name="newpassword" value="{{request.form.newpassword }}"style="border-radius:0px;margin-top:15px;width:350px;height:50px;">
+          <br>
+          <input required class="form-control" type="password" placeholder="Confirm password" name="confnewpass" value="{{request.form.confnewpass }}" style="border-radius:0px; margin-top:15px; width:350px;height:50px;">
+          <br>
+          {% for message in get_flashed_messages() %} 
+            {{ message }} 
+          {% endfor %}
+        	<br>
+        	<input class="form-control" type="submit" value="Sign up" style="border-radius:0px;margin-top:15px;width:350px; background-color:#008f73; color:#ffffff; height:50px;">
+    	</form>
+</div>
+
+
+{% endblock %}
