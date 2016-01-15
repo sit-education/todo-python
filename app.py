@@ -523,13 +523,14 @@ def apiitems():
     massiv = []
     counts= ((todo.execute('select count(*) from todo%s' %(cur))).fetchall())[0][0]
     itemss= (todo.execute('select * from todo%s' %(cur))).fetchall()
+    tasks = collections.OrderedDict()
     for x in range(0,counts):
-        task = collections.OrderedDict()
+    	task = collections.OrderedDict()
         task['id']=itemss[x][0]
         task['title']=itemss[x][1]
         task['description']=itemss[x][2]
         massiv.append(task)
-    return jsonify({'status':1, 'data':{'todoData': task }})
+    return jsonify({'status':1, 'data':{'todoData': massiv }})
 
 @app.route('/api/v1/item/<numb>', methods=['Delete'])
 @apilogin_required
