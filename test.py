@@ -57,5 +57,19 @@ class TestServerFunctionality(unittest.TestCase):
 		requestLogout = requests.post(self.url+'/logout', headers = headers)
 		self.assertEqual(requestLogout.json().get('status'), 1)
 
+	def test_7_signup(self):
+		SignupData = {"email": "shahrustam98@gmail.com", "login": "test3", "firstName": "test3", "lastName": "test3", "password": "test3", "confPass": "test3" }
+		requestSignup = requests.post(self.url+'/signup', json = SignupData)
+		self.assertEqual(requestSignup.json().get('status'), 1)
+		requestDeleteUser = requests.post(self.url+'/testSignup')
+		self.assertEqual(requestDeleteUser.json().get('status'), 1)
+
+	def test_8_restore_password(self):
+		restoreData = {"email": "goodshomess@gmail.com"}
+		requestRestore = requests.post(self.url+'/restorePassword', json = restoreData)
+		self.assertEqual(requestRestore.json().get('status'), 1)
+		requestSetPassRecov = requests.post(self.url+'/testRestore')
+		self.assertEqual(requestSetPassRecov.json().get('status'), 1)
+
 if __name__ == '__main__':
 	unittest.main(verbosity=2)
