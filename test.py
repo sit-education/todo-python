@@ -33,14 +33,14 @@ class TestServerFunctionality(unittest.TestCase):
 		requestLogin = requests.post(self.url+'/login', json = self.loginval)
 		token = (requestLogin.json().get('data')).get('tokenKey')
 		headers = {'Token-Key':'%s'%token }
-		requestItem = requests.post(self.url+'/item', json = {"title":"test4", "description":"test4"}, headers = headers)
+		requestItem = requests.post(self.url+'/item', json = {"title":"tes't4", "description":"t'est4"}, headers = headers)
 		self.assertEqual(requestItem.json().get('status'), 1)
 
 	def test_4_edit_item(self):
 		requestLogin = requests.post(self.url+'/login', json = self.loginval)
 		token = (requestLogin.json().get('data')).get('tokenKey')
 		headers = {'Token-Key':'%s'%token }
-		requestItemEdit = requests.put(self.url+'/item/4', json = {"title":"test4", "description":"test4"}, headers = headers)
+		requestItemEdit = requests.put(self.url+'/item/4', json = {"title":"tes't4", "description":"tes't4"}, headers = headers)
 		self.assertEqual(requestItemEdit.json().get('status'), 1)
 
 	def test_5_delete_item(self):
