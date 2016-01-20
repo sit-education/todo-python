@@ -18,13 +18,13 @@
 				{% for row in db %}
 					<div class="row ramkarow">
 						<div class="col-xs-1 col-sm-1 col-md-1">
-							  #{{row[0]}}
+							  #{{row.id}}
   						</div>
   						<div class="col-xs-9 col-sm-9 col-md-9">
   							<div class="row">
   								<div class="col-xs-12 col-sm-12 col-md-12" >
   									<h3 style="white-space:nowrap;overflow:hidden;padding:5px;text-overflow: ellipsis;">
-  										{{ row[1] }}
+  										{{ row.title }}
   									</h3>
 
   								</div>
@@ -32,25 +32,30 @@
   							</div>
   							<hr style="margin:3px;">
   							<div class="row " style="padding:15px; padding-top:0px;overflow:hidden;">
-  								{{ row[2] }}
+                  
+                    <pre style="background-color:#FFFFFF; border:0px; padding:0px;margin:0px;font-family: 'Droid Serif', serif;">{{ row.description }}</pre>
+                  
+
   							</div>	
   						</div>
   						<form action="" method="post">
   							<div class="row center">
   								<div class="col-xs-2 col-sm-1 col-md-1">
-  									<button formaction="/item/{{row[0]}}" type="submit" value={{row[0]}} name="edit" style="background-image: none; background-color: transparent;border:0px;">
+  									<button formaction="/item/{{row.id}}" type="submit" value={{row.id}} name="edit" style="background-image: none; background-color: transparent;border:0px;">
   										<img src="static/img/edit.png" alt="Edit task" class="img-circle" heigth="30" width="30">
   									</button>
 								</div>
+              </form>
+              <form action="" method="post">
   								<div class="col-xs-2 col-sm-1 col-md-1">
-  									<button type="submit" value={{row[0]}} name="delete" style="background-image: none; background-color: transparent;border:0px;">
+  									<button formaction="/itemdel/{{row.id}}" type="submit" value={{row.id}} name="delete" style="background-image: none; background-color: transparent;border:0px;">
   										<img src="static/img/delete.png" alt="Delete task" class="img-circle" heigth="30" width="30">
   									</button>
   								</div>
   							</div>
   						</form>
   					</div>
-  				{% endfor %}
+  			{% endfor %}
 		</div>
 		<div class="col-md-2"> 
 		</div>
