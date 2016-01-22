@@ -19,14 +19,14 @@
     <div class="col-md-2"> </div>
         <div class="col-md-8 ramka">
             <div class="row" style="font-family: 'Droid Serif', serif;"> 
-                <h4>#{{todo[0][0]}}</h4> 
+                <h4>#{{todo.id}}</h4> 
                 <br>
                 <form action="" method="post">
                    Title:
-                    <input required formaction="/apply/{{ nome }}" placeholder="Title" class="form-control" type="text" name="titleo" value="{{todo[0][1]}}{{request.form.titleo }}" style="border-radius:0px; margin-bottom:10px; width:100%;height:50px;">
+                    <input required formaction="/apply/{{ nome }}" placeholder="Title" class="form-control" type="text" name="titleo" value="{{todo.title}}{{request.form.titleo }}" style="border-radius:0px; margin-bottom:10px; width:100%;height:50px;">
                     <br>
                     Description:
-                    <textarea maxlength="250" formaction="/apply/{{ nome}}" placeholder="Description" class="form-control" rows="3"  name="descriptiono" style="resize:none;border-radius:0px;margin-top:15px;width:100%;height:250px;" value="{{request.form.descriptiono }}">{{todo[0][2]}}</textarea>
+                    <textarea maxlength="250" formaction="/apply/{{ nome}}" placeholder="Description" class="form-control" rows="3"  name="descriptiono" style="resize:none;border-radius:0px;margin-top:15px;width:100%;height:250px;" value="{{request.form.descriptiono }}">{{todo.description}}</textarea>
                     <br>
                 </form1>
             </div>
