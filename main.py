@@ -37,7 +37,7 @@ ADMINS = ['shahrustam98@gmail.com']
 
 db = SQLAlchemy(app)
 
-mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+
 
 @app.route('/time')
 def timess():
@@ -275,6 +275,7 @@ def reg():
         vefiry = verif(Code='%s'%Code, id='%s'%IDD)
         db.session.add(vefiry)
         db.session.commit()
+        mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
         tasks = mysqls.cursor()
         tasks.execute('CREATE TABLE todo%s(id INT NOT NULL AUTO_INCREMENT,title VARCHAR(255) ,description VARCHAR(255) ,PRIMARY KEY(id))'%IDD)
         mysqls.commit()
@@ -333,6 +334,7 @@ def login():
 @login_required
 def items():
     cur = tokenss.query.filter_by(token=(request.cookies['token'])).first()
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -466,7 +468,7 @@ def apirecov():
     emailnew=['%s'%oldmail]
     msg = Message('Recovery password', sender = ADMINS[0], recipients = emailnew)
     msg.html =  '''
-                 <h3>Please, <a href="http://ec2-52-11-248-121.us-west-2.compute.amazonaws.com/recovery/%s">click</a> to recovery your password</h3>
+                 <h3>Please, <a href="http://direct-subject-119713.appspot.com/recovery/%s">click</a> to recovery your password</h3>
                 
                 '''%(Code)
     mail.send(msg)
@@ -520,7 +522,7 @@ def apisignup():
     emailnew=['%s'%newemail]
     msg = Message('Confirm email address', sender = ADMINS[0], recipients = emailnew)
     msg.html =  '''
-                <h3>Please, <a href="http://ec2-52-11-248-121.us-west-2.compute.amazonaws.com/verification/%s">click</a> to confirm your registration</h3>
+                <h3>Please, <a href="http://direct-subject-119713.appspot.com/verification/%s">click</a> to confirm your registration</h3>
             
                 '''%(Code)
     mail.send(msg)
@@ -588,6 +590,7 @@ def apilogin():
 @apilogin_already
 def apilogout():
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -615,6 +618,7 @@ def apiadd():
         errors.append(massiv)
         return jsonify({'status':0, 'errors': errors }), 400
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -628,6 +632,7 @@ def apiadd():
 @apilogin_required
 def apiitems():
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -645,6 +650,7 @@ def apiitems():
 @apilogin_required
 def apiitemdelete(numb):
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -668,6 +674,7 @@ def apiitemdelete(numb):
 @app.route('/api/v1/item/<numb>', methods=['PUT'])
 def apiitem(numb):
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
