@@ -13,6 +13,7 @@ from time import time
 import os
 from flask_sqlalchemy import SQLAlchemy
 import MySQLdb
+import requests
 app = Flask(__name__)
 # Note: We don't need to call run() since our application is embedded within
 # the App Engine WSGI application server.
@@ -405,6 +406,7 @@ def logout():
     resp.set_cookie('token_expired', expires=0)
     return resp
 
+###############################################################################################################
 
 def apilogin_required(f):
     @wraps(f)
@@ -535,7 +537,7 @@ def apisignup():
     db.session.commit()
     task=MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
     tasks = task.cursor()
-    tasks.execute('CREATE TABLE todo%s(id INT NOT NULL,title VARCHAR(255) ,description VARCHAR(255) ,PRIMARY KEY(id))'%IDD.id)
+    tasks.execute('CREATE TABLE todo%s(id INT NOT NULL AUTO_INCREMENT,title VARCHAR(255) ,description VARCHAR(255) ,PRIMARY KEY(id))'%IDD.id)
     task.commit()
     token=gentoken()
     token_expired= str(int(time()+86400))
@@ -737,6 +739,71 @@ def testRestore():
     db.session.delete(recov)
     db.session.commit()
     return jsonify({'status':1, 'data': {} })
+
+##########################################################################################################
+def migratetodo(ids):
+    class migratetodos(db.Model):
+        __tablename__ = 'todo%s'%ids
+        __table_args__ = {'extend_existing': True}
+        id = db.Column('id', db.Integer, primary_key=True)
+        title = db.Column(db.String(255))
+        description = db.Column(db.String(255))
+
+        def __init__(self,id,title,description):
+            self.id = id
+            self.title = title
+            self.description = description
+
+        def __repr__(self):
+            return str(('%s'%self.title,'%s'%self.description))
+    return migratetodos
+
+
+@app.route('/api/v1/migration', methods=['GET'])
+def migrate():
+    migration_access = False
+    if migration_access == False:
+        massiv=collections.OrderedDict()
+        massiv['error_key']="disabled"
+        massiv['error_message']='Disabled'
+        errors=[]
+        errors.append(massiv)
+        return jsonify({'status':0, 'errors': errors }), 400
+    headers = {'Token-Key':'Hwj4Weh7xQALV5KZJS5qSE7kUrEmRfuNdt4dBCtvNsUn5Q2q' }
+    url = 'http://ec2-52-11-248-121.us-west-2.compute.amazonaws.com/api/export'
+    requestusers = requests.get(url , headers = headers)
+    gaeusers = users.query.all()
+    userss = []
+    emails = []
+    for k in gaeusers:
+        userss.append(k.login)
+        emails.append(k.email)
+    data = requestusers.json().get('users')
+    for x in range(0,len(data)):
+        if userss.count(data[x].get('user').get('login')) == 0 and (data[x].get('user').get('emailVerified')) != 0 and emails.count(data[x].get('user').get('email')) == 0:
+            newuser = users(login='%s'%(data[x].get('user').get('login')), 
+                password='%s'%(data[x].get('user').get('password')), 
+                email='%s'%(data[x].get('user').get('email')), 
+                firstName='%s'%(data[x].get('user').get('firstName')), 
+                lastName='%s'%(data[x].get('user').get('lastName')), 
+                emailVerified=(data[x].get('user').get('emailVerified')), 
+                recoveryPass=(data[x].get('user').get('recoveryPass')))
+            db.session.add(newuser)
+            db.session.commit()
+            IDD = users.query.filter_by(email='%s'%(data[x].get('user').get('email'))).first()
+            todo=MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+            todos = todo.cursor()
+            todos.execute('CREATE TABLE todo%s(id INT NOT NULL AUTO_INCREMENT,title VARCHAR(255) ,description VARCHAR(255) ,PRIMARY KEY(id))'%IDD.id)
+            todo.commit()
+            if len(data[x].get('tasks')) !=0:
+                for y in range(0,len(data[x].get('tasks'))):
+                    task = (migratetodo(IDD.id))(id='%s'%((data[x].get('tasks'))[y].get('id')) ,title='%s'%((data[x].get('tasks'))[y].get('title')),description='%s'%((data[x].get('tasks'))[y].get('description')))
+                    db.session.add(task)
+                    db.session.commit()
+    return jsonify({'status':1, 'data': {} })
+
+
+###########################################################################################################
 
 @app.errorhandler(404)
 def page_not_found(e):
