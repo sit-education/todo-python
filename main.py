@@ -19,7 +19,7 @@ app = Flask(__name__)
 # the App Engine WSGI application server.
 #app.config["SQLALCHEMY_ECHO"] = False
 app.secret_key = "shahniggas"
-app.config["SQLALCHEMY_DATABASE_URI"] ='mysql+gaerdbms:///users?instance=direct-subject-119713:database'
+app.config["SQLALCHEMY_DATABASE_URI"] ='mysql+gaerdbms:///users?instance=sit-todo-test:database'
 app.config["SQLALCHEMY_ECHO"] = False
 app.config["JSON_SORT_KEYS"] = False
 
@@ -28,7 +28,7 @@ app.config.update(
     MAIL_PORT = 465,
     MAIL_USE_SSL = True,
     MAIL_USERNAME = 'shahrustam98@gmail.com',
-    MAIL_PASSWORD = '250585LEN'
+    MAIL_PASSWORD = 'qs4c7ym56f85g'
     )
 
 
@@ -197,7 +197,7 @@ def recovery():
         emailnew=['%s'%oldmail]
         msg = Message('Recovery password', sender = ADMINS[0], recipients = emailnew)
         msg.html =  '''
-                    <h3>Please, <a href="http://direct-subject-119713.appspot.com/recovery/%s">click</a> to recovery your password</h3>
+                    <h3>Please, <a href="http://sit-todo-test.appspot.com/recovery/%s">click</a> to recovery your password</h3>
                 
                     '''%(Code)
         mail.send(msg)
@@ -265,7 +265,7 @@ def reg():
         emailnew=['%s'%newemail]
         msg = Message('Confirm email address', sender = ADMINS[0], recipients = emailnew)
         msg.html =  '''
-                    <h3>Please, <a href="http://direct-subject-119713.appspot.com/verification/%s">click</a> to confirm your registration</h3>
+                    <h3>Please, <a href="http://sit-todo-test.appspot.com/verification/%s">click</a> to confirm your registration</h3>
                 
                     '''%(Code)
         mail.send(msg)
@@ -276,7 +276,7 @@ def reg():
         vefiry = verif(Code='%s'%Code, id='%s'%IDD)
         db.session.add(vefiry)
         db.session.commit()
-        mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+        mysqls = MySQLdb.connect(unix_socket='/cloudsql/sit-todo-test:database', db='users', user='root')
         tasks = mysqls.cursor()
         tasks.execute('CREATE TABLE todo%s(id INT NOT NULL AUTO_INCREMENT,title VARCHAR(255) ,description VARCHAR(255) ,PRIMARY KEY(id))'%IDD)
         mysqls.commit()
@@ -335,7 +335,7 @@ def login():
 @login_required
 def items():
     cur = tokenss.query.filter_by(token=(request.cookies['token'])).first()
-    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/sit-todo-test:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -470,7 +470,7 @@ def apirecov():
     emailnew=['%s'%oldmail]
     msg = Message('Recovery password', sender = ADMINS[0], recipients = emailnew)
     msg.html =  '''
-                 <h3>Please, <a href="http://direct-subject-119713.appspot.com/recovery/%s">click</a> to recovery your password</h3>
+                 <h3>Please, <a href="http://sit-todo-test.appspot.com/recovery/%s">click</a> to recovery your password</h3>
                 
                 '''%(Code)
     mail.send(msg)
@@ -524,7 +524,7 @@ def apisignup():
     emailnew=['%s'%newemail]
     msg = Message('Confirm email address', sender = ADMINS[0], recipients = emailnew)
     msg.html =  '''
-                <h3>Please, <a href="http://direct-subject-119713.appspot.com/verification/%s">click</a> to confirm your registration</h3>
+                <h3>Please, <a href="http://sit-todo-test.appspot.com/verification/%s">click</a> to confirm your registration</h3>
             
                 '''%(Code)
     mail.send(msg)
@@ -535,7 +535,7 @@ def apisignup():
     vefiry = verif(Code='%s'%Code, id='%s'%IDD.id)
     db.session.add(vefiry)
     db.session.commit()
-    task=MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+    task=MySQLdb.connect(unix_socket='/cloudsql/sit-todo-test:database', db='users', user='root')
     tasks = task.cursor()
     tasks.execute('CREATE TABLE todo%s(id INT NOT NULL AUTO_INCREMENT,title VARCHAR(255) ,description VARCHAR(255) ,PRIMARY KEY(id))'%IDD.id)
     task.commit()
@@ -592,7 +592,7 @@ def apilogin():
 @apilogin_already
 def apilogout():
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
-    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/sit-todo-test:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -620,7 +620,7 @@ def apiadd():
         errors.append(massiv)
         return jsonify({'status':0, 'errors': errors }), 400
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
-    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+    mysqls =MySQLdb.connect(unix_socket='/cloudsql/sit-todo-test:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -634,7 +634,7 @@ def apiadd():
 @apilogin_required
 def apiitems():
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
-    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/sit-todo-test:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -652,7 +652,7 @@ def apiitems():
 @apilogin_required
 def apiitemdelete(numb):
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
-    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+    mysqls = MySQLdb.connect(unix_socket='/cloudsql/sit-todo-test:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -676,7 +676,7 @@ def apiitemdelete(numb):
 @app.route('/api/v1/item/<numb>', methods=['PUT'])
 def apiitem(numb):
     cur = apitokenss.query.filter_by(token=(request.headers.get('Token-Key'))).first()
-    mysqls = MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+    mysqls =MySQLdb.connect(unix_socket='/cloudsql/sit-todo-test:database', db='users', user='root')
     tasks = mysqls.cursor()
     tasks.execute('ALTER TABLE todo%s AUTO_INCREMENT = 1'%(cur.id))
     mysqls.commit()
@@ -716,7 +716,7 @@ def apiitem(numb):
 @app.route('/api/v1/testSignup', methods=['POST'])
 def testSignup():
     ids = (users.query.filter_by(email='shahrustam98@gmail.com').first()).id
-    task=MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+    task=MySQLdb.connect(unix_socket='/cloudsql/sit-todo-test:database', db='users', user='root')
     (task.cursor()).execute('Drop table todo%s'%ids)
     task.commit()
     token = apitokenss.query.filter_by(id='%s'%ids).first()
@@ -791,7 +791,7 @@ def migrate():
             db.session.add(newuser)
             db.session.commit()
             IDD = users.query.filter_by(email='%s'%(data[x].get('user').get('email'))).first()
-            todo=MySQLdb.connect(unix_socket='/cloudsql/direct-subject-119713:database', db='users', user='root')
+            todo=MySQLdb.connect(unix_socket='/cloudsql/sit-todo:database', db='users', user='root')
             todos = todo.cursor()
             todos.execute('CREATE TABLE todo%s(id INT NOT NULL AUTO_INCREMENT,title VARCHAR(255) ,description VARCHAR(255) ,PRIMARY KEY(id))'%IDD.id)
             todo.commit()

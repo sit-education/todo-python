@@ -5,7 +5,7 @@ import unittest
 class TestServerFunctionality(unittest.TestCase):
 
 	def setUp(self):  #setUp function is called before each test, a built-in method of unittest
-		self.url= 'http://direct-subject-119713.appspot.com/api/v1'
+		self.url= 'http://sit-todo-test.appspot.com/api/v1'
 		self.loginval= {"login":"rustam", "password":"zero98"}
 
 	def test_1_login(self):
